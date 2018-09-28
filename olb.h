@@ -9,6 +9,7 @@ using namespace std;
 
 class OLB{
 public:
+  string output;
   vec eigval;
   mat eigvec;
   sp_mat WeightMatrix;
@@ -53,7 +54,7 @@ public:
 		double r1 = 0,r2 = 0, d1 = 1, d2 = 1,t1,t2;
 		v.push_back(v[0] - m_Points[a]);
 		v.push_back(v[1] - m_Points[a]);
-    cout << v[0] << "," << v[1] << endl;
+    //cout << v[0] << "," << v[1] << endl;
     for(int i = 0; i < d; ++i)
       r1 += v[2].m_VecPoints[i] * v[3].m_VecPoints[i];
     for(int ii = 2; ii < 4; ++ii){
@@ -63,7 +64,7 @@ public:
       }
       d1 *= sqrt(t1);
     }
-    cout << acos(r1/d1)*180/pi <<  '\n';
+    //cout << acos(r1/d1)*180/pi <<  '\n';
 		v[2] = v[0] - m_Points[b];
 		v[3] = v[1] - m_Points[b];
     for(int i = 0; i < d; ++i)
@@ -76,7 +77,7 @@ public:
       }
       d2 *= sqrt(t2);
     }
-    cout << acos(r2/d1)*180/pi <<'\n';
+    //cout << acos(r2/d1)*180/pi <<'\n';
     r1 = 1/tan(acos(r1/d1));
     r2 = 1/tan(acos(r2/d2));
     return (r1 + r2)/2;
@@ -87,16 +88,34 @@ public:
     vector<int> aux1(3);
     vector<int> aux2(3);
     int a,b;
+    double v;
     for(int i = 0; i < size; ++i){
       aux1 = vecFaces[i];
+      //v = 0;
       for(int j = i+1; j < size; ++j){
         aux2 = vecFaces[j];
         if(findOcurrence(aux1,aux2,a,b,d)){
           double r = GetWeight(aux1,aux2,a,b,d,vecPoints);
+          //v += r;
           WeightMatrix(i,j) = WeightMatrix(j,i) = r;
-          cout << "(" << a << "," << b << ") = " << r << endl;
+          //cout << "(" << a << "," << b << ") = " << r << endl;
         }
       }
+      WeightMatrix(i,i) = -v;
     }
+    for(int i = 0; i < size; ++i){
+      v = 0;
+      for(int j = 0; j < size; ++j)
+        v += WeightMatrix(i,j);
+      WeightMatrix(i,i) = -v;
+    }
+    cout << WeightMatrix << endl;
+  }
+  void operate(int n){
+    eigs_sym(this->eigval, this->eigvec, this->WeightMatrix, n);
+  }
+  void show(){
+    cout << this->eigval << endl;
+    cout << this->eigvec << endl;
   }
 };
